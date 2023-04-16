@@ -1,5 +1,4 @@
-import pygame
-from level.sprite import Sprite
+from sprite import Sprite
 import copy
 
 

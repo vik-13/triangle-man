@@ -1,6 +1,4 @@
-import pygame
-from level.animation import Animation
-from pygame.math import Vector2 as Vector
+from animation import Animation
 
 GRAPHIC = [
     [[1, 56, 118, 55, 109, 44, 9, 45], 'black', 'black', 1],
