@@ -5,7 +5,7 @@ from settings import *
 from movable_platform import MovablePlatform
 
 
-class Regular:
+class Spike:
     def __init__(self, pos, size, direction):
         self.screen = pygame.display.get_surface()
         self.rect = pygame.Rect(pos, size)
@@ -26,6 +26,6 @@ class Regular:
         self.render()
 
     def render(self):
-        pygame.gfxdraw.box(self.screen, self.rect, pygame.Color('black'))
+        pygame.gfxdraw.box(self.screen, self.rect, pygame.Color('#8e2c0b'))
 
 

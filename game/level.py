@@ -5,22 +5,18 @@ from pygame.math import Vector2 as Vector
 from fan import Fan
 from regular import Regular
 from map import Map
+from player import Player
 
 
 class Level:
     def __init__(self):
         self.display_surface = pygame.display.get_surface()
 
-        self.character = Sprite([
-            [[0, 9, 36, 0, 21, 26], 'black', 'black', 1],
-            [[21, 27, 34, 39, 34, 59], 'black', 'black', 1],
-            [[21, 27, 21, 45, 8, 58], 'black', 'black', 1],
-            [[22, 7, 29, 6, 26, 11], 'red', 'red', 1]
-        ], Vector(500, 100), (38, 60))
-
-        self.fan = Fan(Vector(200, 400))
+        # self.fan = Fan(Vector(500, 280))
 
         self.map = Map()
+
+        self.player = Player(self.map)
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -34,7 +30,7 @@ class Level:
 
         self.map.update(dt)
 
-        self.character.update(dt)
+        self.player.update(dt)
 
-        self.fan.update(dt)
+        # self.fan.update(dt)
 

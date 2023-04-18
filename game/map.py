@@ -2,6 +2,8 @@ import pygame
 from levels import *
 from settings import *
 from regular import Regular
+from spike import Spike
+from ice import Ice
 from fan import Fan
 
 class Map:
@@ -10,6 +12,18 @@ class Map:
         self.map = {}
         self.generate_map()
 
+    def get_start(self):
+        return self.map['start'] if self.map['start'] else (0, 0)
+
+    def get_end(self):
+        return self.map['end'] if self.map['end'] else (0, 0)
+
+    def get_blocks(self):
+        return self.map['blocks']
+
+    def get_elements(self):
+        return self.map['elements']
+
     def generate_map(self):
         self.reset_map()
         current_map_data = LEVELS[self.level_index]
@@ -17,10 +31,15 @@ class Map:
         for element in current_map_data:
             element_type = element[0]
             pos = (element[1] * TILE_SIZE, WINDOW_HEIGHT + (-element[2] - element[4]) * TILE_SIZE)
-            size = (element[3] * TILE_SIZE ,element[4] * TILE_SIZE)
+            size = (element[3] * TILE_SIZE, element[4] * TILE_SIZE)
+            direction = (element[5] * TILE_SIZE, -element[6] * TILE_SIZE) if len(element) > 5 else (0, 0)
 
             if element_type == 0:
-                self.map['blocks'].append(Regular(pos, size))
+                self.map['blocks'].append(Regular(pos, size, direction))
+            elif element_type == 1:
+                self.map['blocks'].append(Spike(pos, size, direction))
+            elif element_type == 2:
+                self.map['blocks'].append(Ice(pos, size, direction))
             elif element_type == 8:
                 self.map['elements'].append(Fan(pos))
             elif element_type == 6:

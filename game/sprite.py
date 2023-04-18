@@ -28,5 +28,5 @@ class Sprite:
             pygame.gfxdraw.aapolygon(self.surf, points, pygame.Color(stroke_color))
             pygame.gfxdraw.filled_polygon(self.surf, points, pygame.Color(fill_color))
 
-        pygame.draw.rect(self.surf, 'red', self.rect, 1)
+        # pygame.draw.rect(self.surf, 'red', self.rect, 1)
 
