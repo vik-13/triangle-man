@@ -6,17 +6,19 @@ from fan import Fan
 from regular import Regular
 from map import Map
 from player import Player
+from camera import Camera
+from settings import *
 
 
 class Level:
     def __init__(self):
         self.display_surface = pygame.display.get_surface()
 
-        # self.fan = Fan(Vector(500, 280))
-
         self.map = Map()
 
         self.player = Player(self.map)
+
+        self.camera = Camera()
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -28,9 +30,20 @@ class Level:
         self.display_surface.fill('#957b50')
         self.handle_events()
 
-        self.map.update(dt)
+        self.camera.update(self.map, self.player)
 
-        self.player.update(dt)
+        self.map.update(dt, self.camera.offset)
 
-        # self.fan.update(dt)
+        self.player.update(dt, self.camera.offset)
+
+        # End level
+        if self.player.position.x >= self.map.get_end().x:
+            self.map.next_level()
+            self.player.reset()
+
+        # Fall down
+        if self.player.position.y > WINDOW_HEIGHT:
+            self.map.restart_level()
+            self.player.reset()
+
 

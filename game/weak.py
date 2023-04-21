@@ -5,7 +5,7 @@ from settings import *
 from movable_platform import MovablePlatform
 
 
-class Spike:
+class Weak:
     def __init__(self, pos, size, direction):
         self.screen = pygame.display.get_surface()
         self.rect = pygame.Rect(pos, size)
@@ -28,6 +28,6 @@ class Spike:
     def render(self, camera_offset):
         offset_rect = self.rect.copy()
         offset_rect.center -= camera_offset;
-        pygame.gfxdraw.box(self.screen, offset_rect, pygame.Color('#8e2c0b'))
+        pygame.gfxdraw.box(self.screen, offset_rect, pygame.Color('green'))
 
 

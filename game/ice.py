@@ -17,15 +17,17 @@ class Ice:
         if self.is_movable:
             self.movable_platform = MovablePlatform(self.original, self.destination, Vector(direction).magnitude(), Vector(size))
 
-    def update(self, dt):
+    def update(self, dt, camera_offset):
         if self.is_movable:
-            self.movable_platform.update(dt)
+            self.movable_platform.update(dt, camera_offset)
 
             self.rect.topleft = self.movable_platform.pos
 
-        self.render()
+        self.render(camera_offset)
 
-    def render(self):
-        pygame.gfxdraw.box(self.screen, self.rect, pygame.Color('#001933'))
+    def render(self, camera_offset):
+        offset_rect = self.rect.copy()
+        offset_rect.center -= camera_offset;
+        pygame.gfxdraw.box(self.screen, offset_rect, pygame.Color('#001933'))
 
 

@@ -4,19 +4,21 @@ from settings import *
 from regular import Regular
 from spike import Spike
 from ice import Ice
+from weak import Weak
 from fan import Fan
+from pygame.math import Vector2 as Vector
 
 class Map:
     def __init__(self):
-        self.level_index = 0
+        self.level_index = 6
         self.map = {}
         self.generate_map()
 
     def get_start(self):
-        return self.map['start'] if self.map['start'] else (0, 0)
+        return Vector(self.map['start']) if self.map['start'] else Vector(0, 0)
 
     def get_end(self):
-        return self.map['end'] if self.map['end'] else (0, 0)
+        return Vector(self.map['end']) if self.map['end'] else Vector(0, 0)
 
     def get_blocks(self):
         return self.map['blocks']
@@ -40,6 +42,8 @@ class Map:
                 self.map['blocks'].append(Spike(pos, size, direction))
             elif element_type == 2:
                 self.map['blocks'].append(Ice(pos, size, direction))
+            elif element_type == 4:
+                self.map['blocks'].append(Weak(pos, size, direction))
             elif element_type == 8:
                 self.map['elements'].append(Fan(pos))
             elif element_type == 6:
@@ -47,8 +51,12 @@ class Map:
             elif element_type == 7:
                 self.map['end'] = pos
 
+    def restart_level(self):
+        self.generate_map()
+
     def next_level(self):
         self.level_index += 1
+        self.level_index = len(LEVELS) - 1 if self.level_index >= len(LEVELS) else self.level_index
         self.generate_map()
 
     def reset_map(self):
@@ -59,9 +67,9 @@ class Map:
             'end': (0, 0)
         }
 
-    def update(self, dt):
+    def update(self, dt, camera_offset):
         for block in self.map['blocks']:
-            block.update(dt)
+            block.update(dt, camera_offset)
 
-        for block in self.map['elements']:
-            block.update(dt)
+        for element in self.map['elements']:
+            element.update(dt, camera_offset)

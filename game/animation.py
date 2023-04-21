@@ -3,7 +3,7 @@ import copy
 
 
 class Animation(Sprite):
-    def __init__(self, graphic, animations, pos, size, speed, force=False):
+    def __init__(self, graphic, animations, pos, size, speed, once=False):
         super().__init__(graphic, pos, size)
 
         self.total = len(animations) + 1
@@ -13,7 +13,7 @@ class Animation(Sprite):
         self.last = 0
         self.is_finished = False
         self.speed = speed
-        self.force = force
+        self.once = once
         self.data = []
 
         self.slides.append(graphic)
@@ -26,17 +26,17 @@ class Animation(Sprite):
                     slide[index][0] = list(animation[index])
             self.slides.append(slide)
 
-    def update(self, dt):
+    def update(self, dt, camera_offset):
         self.index += self.speed * dt
         if self.index >= len(self.slides):
             self.index = 0
             self.is_finished = True
 
-        next_index = int(self.index + 1 if self.index + 1 < self.total else self.index if self.force else 0)
+        next_index = int(self.index + 1 if self.index + 1 < self.total else self.index if self.once else 0)
 
         tt = self.index - int(self.index)
 
-        if self.force and self.is_finished:
+        if self.once and self.is_finished:
             self.data = self.slides[len(self.slides) - 1]
         else:
             slide = self.slides[int(self.index)]
@@ -53,4 +53,4 @@ class Animation(Sprite):
                     else:
                         self.data[layer_index].append(item)
 
-        self.render()
+        self.render(camera_offset)

@@ -29,7 +29,7 @@ class MovablePlatform:
             [[19, 16, 16, 20, 19, 24, 24, 23, 26, 17], '#4d4d00', '#4d4d00', 1]
         ], self.g_holder_2_pos, (40, 40))
 
-    def update(self, dt):
+    def update(self, dt, camera_offset):
         next_pos = self.distance / self.overall_distance
 
         next_pos = 1 if next_pos > 1 else 0 if next_pos < 0 else next_pos
@@ -42,16 +42,16 @@ class MovablePlatform:
 
         self.distance += SPEED_MOVABLE * self.direction * dt
 
-        self.render()
+        self.render(camera_offset)
 
-        self.gHolder1.update(dt)
-        self.gHolder2.update(dt)
+        self.gHolder1.update(dt, camera_offset)
+        self.gHolder2.update(dt, camera_offset)
 
-    def render(self):
+    def render(self, camera_offset):
         pygame.gfxdraw.line(
             self.display_surface,
-            int(self.g_holder_1_pos.x) + 20,
-            int(self.g_holder_1_pos.y) + 20,
-            int(self.g_holder_2_pos.x) + 20,
-            int(self.g_holder_2_pos.y) + 20,
+            int(self.g_holder_1_pos.x - camera_offset.x) + 20,
+            int(self.g_holder_1_pos.y - camera_offset.y) + 20,
+            int(self.g_holder_2_pos.x - camera_offset.x) + 20,
+            int(self.g_holder_2_pos.y - camera_offset.y) + 20,
             pygame.Color('#4d4d00'))
