@@ -37,7 +37,11 @@ class Level:
         self.player.update(dt, self.camera.offset)
 
         # End level
-        if self.player.position.x >= self.map.get_end().x:
+        if self.player.position.x < 0:
+            self.map.previous_level()
+            self.player.reset(True)
+
+        if self.player.position.x >= self.map.get_end().x + TILE_SIZE:
             self.map.next_level()
             self.player.reset()
 

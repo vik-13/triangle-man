@@ -10,7 +10,7 @@ from pygame.math import Vector2 as Vector
 
 class Map:
     def __init__(self):
-        self.level_index = 6
+        self.level_index = 0
         self.map = {}
         self.generate_map()
 
@@ -57,6 +57,11 @@ class Map:
     def next_level(self):
         self.level_index += 1
         self.level_index = len(LEVELS) - 1 if self.level_index >= len(LEVELS) else self.level_index
+        self.generate_map()
+
+    def previous_level(self):
+        self.level_index -= 1
+        self.level_index = 0 if self.level_index < 0 else self.level_index
         self.generate_map()
 
     def reset_map(self):

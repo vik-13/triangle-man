@@ -86,15 +86,19 @@ class Player:
         self.orientation = 'right'
         self.speed = 300
 
-        self.rect = pygame.Rect((0, 0), SIZE)
+        self.rect = pygame.Rect((self.position.x, self.position.y), SIZE)
 
         current_animation = G_LIST[self.status]
         self.character = Animation(current_animation['main'], current_animation['animations'], self.rect, SIZE, current_animation['speed'], current_animation['once'])
 
-    def reset(self):
+    def reset(self, backward=False):
         self.velocity = Vector()
-        self.position = self.map_data.get_start() + Vector(TILE_SIZE / 2, TILE_SIZE)
-        self.rect = pygame.Rect((0, 0), SIZE)
+        if backward:
+            self.position = self.map_data.get_end()
+        else:
+            self.position = self.map_data.get_start()
+        self.position += Vector(TILE_SIZE / 2, TILE_SIZE)
+        self.rect = pygame.Rect((self.position.x, self.position.y), SIZE)
         self.is_in_air = False
 
     def input(self):
@@ -145,7 +149,7 @@ class Player:
                     self.rect.left = block.rect.right if self.velocity.x < 0 else self.rect.left
                     self.rect.centerx, self.position.x = self.rect.centerx, self.rect.centerx
                 else:
-                    self.rect.bottom = block.rect.top if self.velocity.y > 0 else self.rect.bottom
+                    self.rect.bottom = block.rect.top if self.velocity.y >= 0 else self.rect.bottom
                     self.rect.top = block.rect.bottom if self.velocity.y < 0 else self.rect.top
                     self.rect.centery, self.position.y = self.rect.centery, self.rect.centery
                     self.velocity.y = 0
@@ -167,11 +171,10 @@ class Player:
         self.character.update(dt, camera_offset, self.orientation == 'left')
 
     def check_on_floor(self):
-        self.floor_rect = pygame.Rect(self.rect.bottomleft, (self.rect.width, 2))
-        floor_blocks = [block for block in self.map_data.get_blocks() if block.rect.colliderect(self.floor_rect)]
+        floor_rect = pygame.Rect(self.rect.bottomleft, (self.rect.width, 2))
+        floor_blocks = [block for block in self.map_data.get_blocks() if block.rect.colliderect(floor_rect)]
         if len(floor_blocks) >= 1 and floor_blocks[0].is_movable:
             block_velocity = floor_blocks[0].movable_platform.velocity
-            print(block_velocity)
             self.position.x += block_velocity
             self.rect.centerx = round(self.position.x)
         self.is_on_floor = True if floor_blocks else False
