@@ -15,6 +15,7 @@ class MovablePlatform:
         self.current = 0
         self.pos = self.original.copy()
         self.direction = 1
+        self.velocity = 1
 
         self.g_holder_1_pos = Vector(self.original.x + (size.x / 2) - 20, self.original.y + (size.y / 2) - 20)
         self.g_holder_2_pos = Vector(self.destination.x + (size.x / 2) - 20, self.destination.y + (size.y / 2) - 20)
@@ -40,7 +41,8 @@ class MovablePlatform:
         if self.direction == 1 and next_pos == 1 or self.direction == -1 and next_pos == 0:
             self.direction *= -1
 
-        self.distance += SPEED_MOVABLE * self.direction * dt
+        self.velocity = SPEED_MOVABLE * self.direction * dt
+        self.distance += self.velocity
 
         self.render(camera_offset)
 

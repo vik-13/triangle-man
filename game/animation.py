@@ -26,7 +26,7 @@ class Animation(Sprite):
                     slide[index][0] = list(animation[index])
             self.slides.append(slide)
 
-    def update(self, dt, camera_offset):
+    def update(self, dt, camera_offset, invert=False):
         self.index += self.speed * dt
         if self.index >= len(self.slides):
             self.index = 0
@@ -53,4 +53,4 @@ class Animation(Sprite):
                     else:
                         self.data[layer_index].append(item)
 
-        self.render(camera_offset)
+        self.render(camera_offset, invert)

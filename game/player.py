@@ -155,39 +155,25 @@ class Player:
         self.rect.y += self.velocity.y
 
     def update(self, dt, camera_offset):
-        # temp_velocity = self.velocity.copy() if self.velocity.magnitude() <= 1 else self.velocity.copy().normalize()
-        # acceleration = temp_velocity * FALLING_SPEED
-        # acceleration += Vector(GRAVITY) * MASS
-        # acceleration *= dt
-        #
-        # self.velocity += acceleration
-        #
-        # self.velocity.x = MAX_SPEED if self.velocity.x > MAX_SPEED else -MAX_SPEED if self.velocity.x < -MAX_SPEED else self.velocity.x
-        #
-        # self.position += self.velocity
-        #
-        # self.rect.midbottom = (self.position[0] + TILE_SIZE / 2, self.position[1] + TILE_SIZE)
-        # self.character.rect = self.rect
-        #
-        #
-        #
-
         self.input()
         self.apply_gravity(dt)
         self.move(dt)
         self.check_on_floor()
 
         self.update_status()
-        # self.animate(dt)
-        # self.invul_timer.update()
 
         self.character.rect = self.rect
 
-        self.character.update(dt, camera_offset)
+        self.character.update(dt, camera_offset, self.orientation == 'left')
 
     def check_on_floor(self):
         self.floor_rect = pygame.Rect(self.rect.bottomleft, (self.rect.width, 2))
         floor_blocks = [block for block in self.map_data.get_blocks() if block.rect.colliderect(self.floor_rect)]
+        if len(floor_blocks) >= 1 and floor_blocks[0].is_movable:
+            block_velocity = floor_blocks[0].movable_platform.velocity
+            print(block_velocity)
+            self.position.x += block_velocity
+            self.rect.centerx = round(self.position.x)
         self.is_on_floor = True if floor_blocks else False
         self.is_in_air = not self.is_on_floor
 
