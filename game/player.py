@@ -112,7 +112,7 @@ class Player:
         else:
             self.velocity.x = 0
 
-        if keys[pygame.K_SPACE] and self.is_on_floor:
+        if keys[pygame.K_SPACE] and self.velocity.y >= 0 and self.is_on_floor:
             self.velocity.y = -3
 
     def update_status(self):
