@@ -71,6 +71,7 @@ G_LIST = {
 
 class Player:
     def __init__(self, map_data):
+        self.is_dead = False
         self.map_data = map_data
         self.position = map_data.get_start() + Vector(TILE_SIZE / 2, TILE_SIZE)
         self.velocity = Vector()
@@ -100,6 +101,7 @@ class Player:
         self.position += Vector(TILE_SIZE / 2, TILE_SIZE)
         self.rect = pygame.Rect((self.position.x, self.position.y), SIZE)
         self.is_in_air = False
+        self.is_dead = False
 
     def input(self):
         keys = pygame.key.get_pressed()
@@ -115,6 +117,9 @@ class Player:
         if keys[pygame.K_SPACE] and self.velocity.y >= 0 and self.is_on_floor:
             self.velocity.y = -3
 
+    def die(self):
+        self.is_dead = True
+
     def update_status(self):
         if self.is_in_air and self.velocity.y <= 0:
             next_status = 'jump'
@@ -128,7 +133,6 @@ class Player:
             current_animation = G_LIST[self.status]
             self.character = Animation(current_animation['main'], current_animation['animations'], self.rect, SIZE,
                                        current_animation['speed'], current_animation['once'])
-
 
     def move(self, dt):
         # vertical
@@ -144,6 +148,8 @@ class Player:
     def collision(self, direction):
         for block in self.map_data.get_blocks():
             if block.rect.colliderect(self.rect):
+                if block.damage:
+                    self.die()
                 if direction == 'horizontal':
                     self.rect.right = block.rect.left if self.velocity.x > 0 else self.rect.right
                     self.rect.left = block.rect.right if self.velocity.x < 0 else self.rect.left

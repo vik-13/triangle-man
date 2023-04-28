@@ -7,6 +7,7 @@ from movable_platform import MovablePlatform
 
 class Spike:
     def __init__(self, pos, size, direction):
+        self.damage = True
         self.screen = pygame.display.get_surface()
         self.rect = pygame.Rect(pos, size)
 

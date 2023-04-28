@@ -36,6 +36,10 @@ class Level:
 
         self.player.update(dt, self.camera.offset)
 
+        if self.player.is_dead:
+            self.map.restart_level()
+            self.player.reset(True)
+
         # End level
         if self.player.position.x < 0:
             self.map.previous_level()

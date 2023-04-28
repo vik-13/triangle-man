@@ -26,6 +26,7 @@ SPEED = 10
 
 class Fan(Animation):
     def __init__(self, pos):
+        self.damage = False
         super().__init__(GRAPHIC, ANIMATIONS, pos, (122, 82), SPEED)
 
 

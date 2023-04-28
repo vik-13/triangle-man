@@ -7,6 +7,7 @@ from movable_platform import MovablePlatform
 
 class Ice:
     def __init__(self, pos, size, direction):
+        self.damage = False
         self.screen = pygame.display.get_surface()
         self.rect = pygame.Rect(pos, size)
 
