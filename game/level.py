@@ -38,7 +38,7 @@ class Level:
 
         if self.player.is_dead:
             self.map.restart_level()
-            self.player.reset(True)
+            self.player.reset()
 
         # End level
         if self.player.position.x < 0:

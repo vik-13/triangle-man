@@ -3,9 +3,10 @@ from sprite import Sprite
 from animation import Animation
 from settings import *
 from pygame.math import Vector2 as Vector
+from timer import Timer
 
 HORIZONTAL_SPEED = 4
-FALLING_SPEED = -15
+FALLING_SPEED = 2
 MAX_SPEED = .3
 SIZE = (38, 60)
 MASS = 10
@@ -34,37 +35,37 @@ G_LIST = {
     'jump': {
         'main': MAIN,
         'animations': [[[1, 5, 36, -7, 24, 20], [24, 20, 26, 39, 17, 59], [24, 21, 20, 41, 8, 58], [24, 1, 30, -2, 28, 4]], [[2, 4, 39, -5, 23, 21], [23, 21, 27, 36, 17, 52], [23, 21, 23, 40, 11, 53], [25, 2, 32, 0, 29, 6]]],
-        'speed': 150,
+        'speed': 10,
         'once': True
     },
     'drop': {
         'main': MAIN,
         'animations': [[[1, 21, 38, 22, 17, 44], [17, 43, 38, 46, 26, 58], [16, 42, 22, 56, 8, 58], [21, 25, 28, 26, 24, 30]], [0, 0, 0, 0]],
-        'speed': 120,
+        'speed': 15,
         'once': True
     },
     'wall': {
         'main': [[[0, 2, 34, 0, 20, 21], 'black', 'black', 1], [[20, 20, 40, 30, 34, 14], 'black', 'black', 1], [[19, 20, 32, 33, 38, 53], 'black', 'black', 1], [[12, 9, 7, 4, 14, 4], 'red', 'red', 1]],
         'animations': [],
-        'speed': 200,
+        'speed': 5,
         'once': False
     },
     'fall': {
         'main': [[[3, 0, 39, 10, 13, 26], 'black', 'black', 1], [[13, 25, 26, 38, 26, 57], 'black', 'black', 1], [[13, 25, 13, 44, 0, 57], 'black', 'black', 1], [[23, 8, 30, 10, 25, 13], 'red', 'red', 1]],
         'animations': [[0, [13, 25, 29, 33, 28, 52], [13, 25, 8, 43, -7, 51], 0]],
-        'speed': 150,
+        'speed': 10,
         'once': True
     },
     'die': {
         'main': MAIN,
         'animations': [[[3, 56, 27, 27, 31, 58], [66, 46, 57, 60, 34, 59], [-29, 57, -8, 49, 7, 59], [21, 40, 25, 34, 26, 41]]],
-        'speed': 1000,
+        'speed': 3,
         'once': True
     },
     'fly': {
         'main': [[[38, 0, 63, 28, 32, 27], 'black', 'black', 1], [[32, 26, 21, 40, 2, 42], 'black', 'black', 1], [[32, 26, 13, 27, 0, 14], 'black', 'black', 1], [[51, 19, 56, 24, 50, 24], 'red', 'red', 1]],
         'animations': [[[33, 0, 62, 23, 32, 27], [32, 27, 18, 37, -2, 28], [32, 26, 14, 23, 7, 9], [48, 17, 55, 19, 49, 22]]],
-        'speed': 500,
+        'speed': 4,
         'once': False
     }
 }
@@ -72,6 +73,9 @@ G_LIST = {
 class Player:
     def __init__(self, map_data):
         self.is_dead = False
+        self.is_dying = False
+        self.dying_timer = Timer(1000)
+
         self.map_data = map_data
         self.position = map_data.get_start() + Vector(TILE_SIZE / 2, TILE_SIZE)
         self.velocity = Vector()
@@ -102,6 +106,8 @@ class Player:
         self.rect = pygame.Rect((self.position.x, self.position.y), SIZE)
         self.is_in_air = False
         self.is_dead = False
+        self.is_dying = False
+        self.apply_status('idle')
 
     def input(self):
         keys = pygame.key.get_pressed()
@@ -118,9 +124,14 @@ class Player:
             self.velocity.y = -3
 
     def die(self):
-        self.is_dead = True
+        self.is_dying = True
+        self.dying_timer.activate()
+        self.apply_status('die')
+        self.velocity = Vector(0, -0.5)
 
     def update_status(self):
+        if self.is_dying:
+            return
         if self.is_in_air and self.velocity.y <= 0:
             next_status = 'jump'
         elif self.is_in_air and self.velocity.y > 0:
@@ -129,10 +140,13 @@ class Player:
             next_status = 'walk' if self.velocity.x != 0 else 'idle'
 
         if next_status != self.status:
-            self.status = next_status
-            current_animation = G_LIST[self.status]
-            self.character = Animation(current_animation['main'], current_animation['animations'], self.rect, SIZE,
-                                       current_animation['speed'], current_animation['once'])
+            self.apply_status(next_status)
+
+    def apply_status(self, status):
+        self.status = status
+        current_animation = G_LIST[self.status]
+        self.character = Animation(current_animation['main'], current_animation['animations'], self.rect, SIZE,
+                                   current_animation['speed'], current_animation['once'])
 
     def move(self, dt):
         # vertical
@@ -150,6 +164,7 @@ class Player:
             if block.rect.colliderect(self.rect):
                 if block.damage:
                     self.die()
+                    return
                 if direction == 'horizontal':
                     self.rect.right = block.rect.left if self.velocity.x > 0 else self.rect.right
                     self.rect.left = block.rect.right if self.velocity.x < 0 else self.rect.left
@@ -165,15 +180,24 @@ class Player:
         self.rect.y += self.velocity.y
 
     def update(self, dt, camera_offset):
-        self.input()
-        self.apply_gravity(dt)
-        self.move(dt)
-        self.check_on_floor()
+        if self.is_dying:
+            if not self.dying_timer.active:
+                self.is_dead = True
 
-        self.update_status()
+            self.velocity.y += FALLING_SPEED * dt
+            self.position.y += self.velocity.y * self.speed * dt
+            self.rect.centery = round(self.position.y)
+
+            self.dying_timer.update()
+        else:
+            self.input()
+            self.apply_gravity(dt)
+            self.move(dt)
+            self.check_on_floor()
+
+            self.update_status()
 
         self.character.rect = self.rect
-
         self.character.update(dt, camera_offset, self.orientation == 'left')
 
     def check_on_floor(self):
