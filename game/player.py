@@ -111,16 +111,16 @@ class Player:
 
     def input(self):
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_RIGHT]:
-            self.velocity.x = 1
-            self.orientation = 'right'
-        elif keys[pygame.K_LEFT]:
+        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
             self.velocity.x = -1
             self.orientation = 'left'
+        elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+            self.velocity.x = 1
+            self.orientation = 'right'
         else:
             self.velocity.x = 0
 
-        if keys[pygame.K_SPACE] and self.velocity.y >= 0 and self.is_on_floor:
+        if (keys[pygame.K_SPACE] or keys[pygame.K_UP] or keys[pygame.K_w]) and self.is_on_floor:
             self.velocity.y = -3
 
     def die(self):
@@ -203,11 +203,11 @@ class Player:
     def check_on_floor(self):
         floor_rect = pygame.Rect(self.rect.bottomleft, (self.rect.width, 2))
         floor_blocks = [block for block in self.map_data.get_blocks() if block.rect.colliderect(floor_rect)]
-        if len(floor_blocks) >= 1 and floor_blocks[0].is_movable:
+        self.is_on_floor = True if floor_blocks and self.velocity.y >= 0 else False
+        self.is_in_air = not self.is_on_floor
+        if self.is_on_floor and floor_blocks[0].is_movable:
             block_velocity = floor_blocks[0].movable_platform.velocity
             self.position.x += block_velocity
             self.rect.centerx = round(self.position.x)
-        self.is_on_floor = True if floor_blocks else False
-        self.is_in_air = not self.is_on_floor
 
 
