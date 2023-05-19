@@ -123,6 +123,9 @@ class Player:
         if (keys[pygame.K_SPACE] or keys[pygame.K_UP] or keys[pygame.K_w]) and self.is_on_floor:
             self.velocity.y = -3
 
+        if not (keys[pygame.K_SPACE] or keys[pygame.K_UP] or keys[pygame.K_w]) and self.velocity.y < -1:
+            self.velocity.y = -1
+
     def die(self):
         self.is_dying = True
         self.dying_timer.activate()
@@ -181,14 +184,7 @@ class Player:
 
     def update(self, dt, camera_offset):
         if self.is_dying:
-            if not self.dying_timer.active:
-                self.is_dead = True
-
-            self.velocity.y += FALLING_SPEED * dt
-            self.position.y += self.velocity.y * self.speed * dt
-            self.rect.centery = round(self.position.y)
-
-            self.dying_timer.update()
+            self.update_dying(dt)
         else:
             self.input()
             self.apply_gravity(dt)
@@ -199,6 +195,16 @@ class Player:
 
         self.character.rect = self.rect
         self.character.update(dt, camera_offset, self.orientation == 'left')
+
+    def update_dying(self, dt):
+        if not self.dying_timer.active:
+            self.is_dead = True
+
+        self.velocity.y += FALLING_SPEED * dt
+        self.position.y += self.velocity.y * self.speed * dt
+        self.rect.centery = round(self.position.y)
+
+        self.dying_timer.update()
 
     def check_on_floor(self):
         floor_rect = pygame.Rect(self.rect.bottomleft, (self.rect.width, 2))
