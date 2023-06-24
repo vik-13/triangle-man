@@ -1,9 +1,21 @@
-from sprite import Sprite
+from sprite import Sprite, Graphic
 import copy
+
+AnimationElement = list[int] | int
+AnimationGraphic = list[AnimationElement]
+Animations = list[AnimationGraphic]
 
 
 class Animation(Sprite):
-    def __init__(self, graphic, animations, pos, size, speed, once=False):
+    total: int
+    index: int
+    time: int
+    last: int
+    is_finished: bool
+    speed: int
+    once: bool
+
+    def __init__(self, graphic: Graphic, animations: Animations, pos, size, speed: int, once: bool = False):
         super().__init__(graphic, pos, size)
 
         self.total = len(animations) + 1
